@@ -1,7 +1,7 @@
 ## Error handling
 defined in <errno.h>
 after executing of function if it fails (ex. returns -1) we can directly check **errno** var
-####Errors and their descriptions
+#### Errors and their descriptions
 * E2BIG Argument list too long
 * EACCESS Permission denied
 * EAGAIN Try again
@@ -38,9 +38,9 @@ after executing of function if it fails (ex. returns -1) we can directly check *
 
 <stdio.h> defines **perror** function that can be used to print text representation of the error occured
 
-##File I/O
+## File I/O
 
-###open
+### open
 
 Each process has 3 file descriptors opened by default
 * 0 (stdin) STDIN_FILENO
@@ -53,7 +53,7 @@ Each process has 3 file descriptors opened by default
  #include <sys/stat.h>
  #include <fcntl.h>
 
-####Flags for open
+#### Flags for open
 * O_APPEND Befor **EACH** write file position is updated to point to the EOF
 * O_ASYNC A signal (SIGIO by default) will be generated when the specified file becomes
 readable or writable. This flag is available only for terminals and sockets, not for
@@ -79,7 +79,7 @@ will be truncated to zero length. Use of O_TRUNC on a FIFO or terminal device is
 ignored. Use on other file types is undefined. Specifying O_TRUNC with O_RDONLY is
 also undefined, as you need write access to the file in order to truncate it.
 
-####Possible modes
+#### Possible modes
 * S_IRWXU Owner has read, write, and execute permission.
 * S_IRUSR Owner has read permission.
 * S_IWUSR Owner has write permission.
@@ -93,7 +93,7 @@ also undefined, as you need write access to the file in order to truncate it.
 * S_IWOTH Everyone else has write permission.
 * S_IXOTH Everyone else has execute permission.
 
-###read
+### read
 
 **ssize_t read(int fd, void *buf, size_t len)**
 
@@ -118,7 +118,7 @@ possible error codes returned by read
 * EINVAL The file descriptor is mapped to an object that does not allow reading.
 * EIO A low-level I/O error occurred.
 
-###write
+### write
 
 **ssize_t write (int fd, const void *buf, size_t count)**
 
@@ -168,11 +168,11 @@ Providing the O_DIRECT flag to open( ) instructs the kernel to minimize the pres
 management.
 When performing direct I/O, the request length, buffer alignment, and file offsets must all be
 integer multiples of the underlying device's sector size—generally, this is 512 bytes
-###close
+### close
 
 **int close (int fd)**
 
-###seek
+### seek
 
 **off_t lseek (int fd, off_t pos, int origin)**
 
@@ -190,28 +190,28 @@ just that it is impossible to return it.
 * ESPIPE The given file descriptor is associated with an unseekable object, such as a pipe,
 FIFO, or socket.
 
-###positional reads and writes
+### positional reads and writes
 
 **ssize_t pread (int fd, void *buf, size_t count, off_t pos)**
 **ssize_t pwrite (int fd, const void *buf, size_t count, off_t pos)**
 
 upon returning file position is not changed
 
-###truncating
+### truncating
 
 **int ftruncate (int fd, off_t len)**
 **int truncate (const char *path, off_t len)**
 
-####all of the multiplexing calls are stupid except epoll() but must be reviewed
+#### all of the multiplexing calls are stupid except epoll() but must be reviewed
 
 **select( )**
 **pselect( )**
 **poll( )**
 **ppoll( )**
 
-##Buffered I/O
+## Buffered I/O
 
-###opening files
+### opening files
 
 **FILE * fopen (const char *path, const char *mode)**
 **FILE * fdopen (int fd, const char *mode)**
@@ -225,10 +225,10 @@ length. If the file does not exist, it is created.
 * a Open the file for writing in append mode. The file is created if it does not exist.
 * a+ Open the file for both reading and writing in append mode. The file is created if it
 does not exist.
-###closing
+### closing
 **int fclose (FILE *stream)**
 **int fcloseall (void)**
-###reading
+### reading
 **int fgetc (FILE *stream)** reads one char
 Standard I/O provides a function for pushing a character back onto a stream, allowing you to
 "peek" at the stream, and return the character if it turns out that you don't want it
@@ -242,7 +242,7 @@ The number of elements(nr, of size 'size') read (not the number of bytes read!) 
 **int fputs (const char *str, FILE *stream)**
 **size_t fwrite (void *buf, size_t size, size_t nr, FILE *stream)**
 
-###seeking
+### seeking
 **int fseek (FILE *stream, long offset, int whence)**
 If whence is set to SEEK_SET, the file position is set to offset. If whence is set to SEEK_CUR,
 the file position is set to the current position plus offset. If whence is set to SEEK_END, the file
@@ -253,7 +253,7 @@ position is set to the end of the file plus offset.
 **int fgetpos (FILE *stream, fpos_t *pos)** returns current position
 **int fflush (FILE *stream)** on call data is flushed to the kernel
 fflush(NULL) flushes ALL streams
-###error checking
+### error checking
 the function ferror( ) tests whether the error indicator
 is set on stream
 **int ferror (FILE *stream)**
@@ -261,36 +261,36 @@ is set on stream
 **void clearerr (FILE *stream)** clears errors and EOF indicators
 **int fileno (FILE *stream)** returns file descriptor
 
-####Unbuffered _IONBF
+#### Unbuffered _IONBF
 No user buffering is performed. Data is submitted directly to the kernel. As this is
 the antithesis of user buffering, this option is not commonly used. Standard error,
 by default, is unbuffered.
-###Line-buffered _IOLBF
+### Line-buffered _IOLBF
 Buffering is performed on a per-line basis. With each newline character, the buffer
 is submitted to the kernel. Line buffering makes sense for streams being output to
 the screen. Consequently, this is the default buffering used for terminals
 (standard out is line-buffered by default).
-###Block-buffered _IOFBF
+### Block-buffered _IOFBF
 Buffering is performed on a per-block basis. This is the type of buffering discussed
 at the beginning of this chapter, and it is ideal for files. By default, all streams
 associated with files are block-buffered. Standard I/O uses the term full buffering
 for block buffering.
 **int setvbuf (FILE *stream, char *buf, int mode, size_t size)**
-###manual locking
+### manual locking
 **void flockfile (FILE *stream)** and non-blocking version **int ftrylockfile (FILE *stream)**
 The function flockfile( ) waits until stream is no longer locked, and then acquires the lock,
 bumps the lock count, becomes the owning thread of the stream, and returns
 **void funlockfile (FILE *stream)**
-##Adnvanced file I/O
-###Epoll
+## Adnvanced file I/O
+### Epoll
 Improves on the poll( ) and select( ) system calls described in Chapter 2 ;
 useful when hundreds of file descriptors have to be polled in a single program.
-###Memory-mapped I/O
+### Memory-mapped I/O
 Maps a file into memory, allowing file I/O to occur via simple memory
 manipulation; useful for certain patterns of I/O.
-###File advice
+### File advice
 Allows a process to provide hints to the kernel on its usage scenarios; can result
 in improved I/O performance.
-###Asynchronous I/O
+### Asynchronous I/O
 Allows a process to issue I/O requests without waiting for them to complete;
 useful for juggling heavy I/O workloads without the use of threads.
