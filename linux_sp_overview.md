@@ -95,7 +95,7 @@ also undefined, as you need write access to the file in order to truncate it.
 
 ### read
 
-**ssize_t read(int fd, void *buf, size_t len)**
+**ssize_t read(int fd, void &ast;buf, size_t len)**
 
 **reading all bytes for sure example**
 
@@ -131,9 +131,9 @@ ssize_t nr;
 count = sizeof (word);
 nr = write (fd, &word, count);
 if (nr == -1)
-/* error, check errno */
-else if (nr != count)
-/* possible error, but 'errno' not set */
+	/* error, check errno */
+	else if (nr != count)
+	/* possible error, but 'errno' not set */
 ```
 possible error codes worth checking
 * EBADF The given file descriptor is not valid, or is not open for writing.
@@ -192,29 +192,29 @@ FIFO, or socket.
 
 ### positional reads and writes
 
-**ssize_t pread (int fd, void *buf, size_t count, off_t pos)**
-**ssize_t pwrite (int fd, const void *buf, size_t count, off_t pos)**
+**ssize_t pread (int fd, void &ast;buf, size_t count, off_t pos)**
+**ssize_t pwrite (int fd, const void &ast;buf, size_t count, off_t pos)**
 
 upon returning file position is not changed
 
 ### truncating
 
-**int ftruncate (int fd, off_t len)**
-**int truncate (const char *path, off_t len)**
+**int ftruncate (int fd, off_t len)** <br>
+**int truncate (const char &ast;path, off_t len)**
 
 #### all of the multiplexing calls are stupid except epoll() but must be reviewed
 
-**select( )**
-**pselect( )**
-**poll( )**
-**ppoll( )**
+**select( )** <br>
+**pselect( )** <br>
+**poll( )** <br>
+**ppoll( )** <br>
 
 ## Buffered I/O
 
 ### opening files
 
-**FILE * fopen (const char *path, const char *mode)**
-**FILE * fdopen (int fd, const char *mode)**
+**FILE &ast; fopen (const char *path, const char &ast;mode)**
+**FILE &ast; fdopen (int fd, const char &ast;mode)**
 modes
 * r
 * r+ Open the file for both reading and writing.
@@ -226,40 +226,40 @@ length. If the file does not exist, it is created.
 * a+ Open the file for both reading and writing in append mode. The file is created if it
 does not exist.
 ### closing
-**int fclose (FILE *stream)**
+**int fclose (FILE &ast;stream)** <br>
 **int fcloseall (void)**
 ### reading
-**int fgetc (FILE *stream)** reads one char
+**int fgetc (FILE &ast;stream)** reads one char
 Standard I/O provides a function for pushing a character back onto a stream, allowing you to
 "peek" at the stream, and return the character if it turns out that you don't want it
-**int ungetc (int c, FILE *stream)**
-**char * fgets (char *str, int size, FILE *stream)**
+**int ungetc (int c, FILE &ast;stream)**
+**char * fgets (char &ast;str, int size, FILE &ast;stream)**
 
-**size_t fread (void *buf, size_t size, size_t nr, FILE *stream)**
+**size_t fread (void &ast;buf, size_t size, size_t nr, FILE &ast;stream)**
 The number of elements(nr, of size 'size') read (not the number of bytes read!) is returned.
 ###writing
-**int fputc (int c, FILE *stream)**
-**int fputs (const char *str, FILE *stream)**
-**size_t fwrite (void *buf, size_t size, size_t nr, FILE *stream)**
+**int fputc (int c, FILE &ast;stream)**
+**int fputs (const char &ast;str, FILE &ast;stream)**
+**size_t fwrite (void &ast;buf, size_t size, size_t nr, FILE &ast;stream)**
 
 ### seeking
-**int fseek (FILE *stream, long offset, int whence)**
+**int fseek (FILE &ast;stream, long offset, int whence)**
 If whence is set to SEEK_SET, the file position is set to offset. If whence is set to SEEK_CUR,
 the file position is set to the current position plus offset. If whence is set to SEEK_END, the file
 position is set to the end of the file plus offset.
-**int fsetpos (FILE *stream, fpos_t *pos)** whence is SEEK_SET
-**void rewind (FILE *stream)** resets position to start of stream
-**long ftell (FILE *stream)** returns current position
-**int fgetpos (FILE *stream, fpos_t *pos)** returns current position
-**int fflush (FILE *stream)** on call data is flushed to the kernel
+**int fsetpos (FILE &ast;stream, fpos_t &ast;pos)** whence is SEEK_SET
+**void rewind (FILE &ast;stream)** resets position to start of stream
+**long ftell (FILE &ast;stream)** returns current position
+**int fgetpos (FILE &ast;stream, fpos_t &ast;pos)** returns current position
+**int fflush (FILE &ast;stream)** on call data is flushed to the kernel
 fflush(NULL) flushes ALL streams
 ### error checking
 the function ferror( ) tests whether the error indicator
 is set on stream
-**int ferror (FILE *stream)**
-**int feof (FILE *stream)** tests whether the EOF indicator is set on stream
-**void clearerr (FILE *stream)** clears errors and EOF indicators
-**int fileno (FILE *stream)** returns file descriptor
+**int ferror (FILE &ast;stream)**
+**int feof (FILE &ast;stream)** tests whether the EOF indicator is set on stream
+**void clearerr (FILE &ast;stream)** clears errors and EOF indicators
+**int fileno (FILE &ast;stream)** returns file descriptor
 
 #### Unbuffered _IONBF
 No user buffering is performed. Data is submitted directly to the kernel. As this is
@@ -275,12 +275,12 @@ Buffering is performed on a per-block basis. This is the type of buffering discu
 at the beginning of this chapter, and it is ideal for files. By default, all streams
 associated with files are block-buffered. Standard I/O uses the term full buffering
 for block buffering.
-**int setvbuf (FILE *stream, char *buf, int mode, size_t size)**
+**int setvbuf (FILE &ast;stream, char &ast;buf, int mode, size_t size)**
 ### manual locking
-**void flockfile (FILE *stream)** and non-blocking version **int ftrylockfile (FILE *stream)**
+**void flockfile (FILE &ast;stream)** and non-blocking version **int ftrylockfile (FILE &ast;stream)**
 The function flockfile( ) waits until stream is no longer locked, and then acquires the lock,
 bumps the lock count, becomes the owning thread of the stream, and returns
-**void funlockfile (FILE *stream)**
+**void funlockfile (FILE &ast;stream)**
 ## Adnvanced file I/O
 ### Epoll
 Improves on the poll( ) and select( ) system calls described in Chapter 2 ;
