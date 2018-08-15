@@ -49,9 +49,9 @@ Each process has 3 file descriptors opened by default
 
 **open("path", flags, mode)** syscall returns fd associated with the path provided
 
- #include <sys/types.h>
- #include <sys/stat.h>
- #include <fcntl.h>
+ #include <sys/types.h> <br>
+ #include <sys/stat.h> <br>
+ #include <fcntl.h> <br>
 
 #### Flags for open
 * O_APPEND Befor **EACH** write file position is updated to point to the EOF
@@ -102,14 +102,14 @@ also undefined, as you need write access to the file in order to truncate it.
 ```c
 ssize_t ret;
 while (len != 0 && (ret = read (fd, buf, len)) != 0) {
-if (ret == -1) {
-if (errno == EINTR)
-continue;
-perror ("read");
-break;
-}
-len -= ret;
-buf += ret;
+	if (ret == -1) {
+		if (errno == EINTR)
+		continue;
+		perror ("read");
+		break;
+		}
+	len -= ret;
+	buf += ret;
 }
 ```
 possible error codes returned by read
@@ -120,7 +120,7 @@ possible error codes returned by read
 
 ### write
 
-**ssize_t write (int fd, const void *buf, size_t count)**
+**ssize_t write (int fd, const void &ast;buf, size_t count)**
 
 
 example
