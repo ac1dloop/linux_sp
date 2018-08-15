@@ -236,8 +236,8 @@ Standard I/O provides a function for pushing a character back onto a stream, all
 **char * fgets (char &ast;str, int size, FILE &ast;stream)**
 
 **size_t fread (void &ast;buf, size_t size, size_t nr, FILE &ast;stream)**
-The number of elements(nr, of size 'size') read (not the number of bytes read!) is returned.
-###writing
+The number of elements(nr, of size 'size') read (not the number of bytes read!) is returned. <br>
+### writing
 **int fputc (int c, FILE &ast;stream)**
 **int fputs (const char &ast;str, FILE &ast;stream)**
 **size_t fwrite (void &ast;buf, size_t size, size_t nr, FILE &ast;stream)**
