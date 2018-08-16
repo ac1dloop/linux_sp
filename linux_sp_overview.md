@@ -294,3 +294,191 @@ in improved I/O performance.
 ### Asynchronous I/O
 Allows a process to issue I/O requests without waiting for them to complete;
 useful for juggling heavy I/O workloads without the use of threads.
+### Scatter/Gather I/O
+ #include <sys/uio.h>
+**ssize_t readv (int fd,const struct iovec &ast;iov,int count);**
+**ssize_t writev (int fd,const struct iovec &ast;iov,int count);**
+```C
+struct iovec {
+void *iov_base;
+size_t iov_len;
+};
+```
+# DONT FORGET TO FILL IN THE GAP HERE BETWEEN CHAPTERS
+
+## Memory Management
+
+**int posix_memalign (void &ast;&ast;memptr,size_t alignment,size_t size);** <br>
+
+A successful call to posix_memalign() allocates size bytes of dynamic memory, en‐
+suring it is aligned along a memory address that is a multiple of alignment . The pa‐
+rameter alignment must be a power of 2 and a multiple of the size of a void pointer.
+The address of the allocated memory is placed in memptr , and the call returns 0 .
+
+**void &ast; valloc (size_t size);**
+
+valloc is malloc with alignment to page boundaries
+
+**void &ast; memalign (size_t boundary, size_t size);**
+
+### Anonymous memory mapping
+
+ #include <sys/mman.h>
+
+**void &ast; mmap (void &ast;start,size_t length,int prot,int flags,int fd,off_t offset);**
+**int munmap (void &ast;start, size_t length);**
+
+Memory obtained via an anonymous mapping looks the same as memory obtained via
+the heap. One benefit to allocating from anonymous mappings is that the pages are
+already filled with zeros.
+
+### Tuning glibc memory management
+
+ #include <malloc.h>
+
+**int mallopt (int param, int value);**
+
+* M_CHECK_ACTION The value of the MALLOC_CHECK_ environment variable (discussed in the next
+section).
+* M_MMAP_MAX The maximum number of mappings that the system will create to satisfy dynamic
+memory requests. When this limit is reached, the data segment will be used for all allocations until one of the previously created mappings is freed. A value of 0 disables all use of anonymous mappings as a basis for dynamic memory allocations.
+* M_MMAP_THRESHOLD The threshold (measured in bytes) over which an allocation request will be satisfied
+via an anonymous mapping instead of the data segment. Note that allocations
+smaller than this threshold may also be satisfied via anonymous mappings at the
+system’s discretion. A value of 0 enables the use of anonymous mappings for all
+allocations, effectively disabling use of the data segment for dynamic memory
+allocations.
+* M_MXFAST The maximum size (in bytes) of a fast bin. Fast bins are special chunks of memory
+in the heap that are never coalesced with adjacent chunks and never returned to
+the system, allowing for very quick allocations at the cost of increased fragmenta‐
+tion. A value of 0 disables all use of fast bins.
+* M_PERTURB Enables memory poisoning, which aids in the detection of memory management
+errors. If provided a nonzero value , glibc sets all allocated bytes (except those re‐
+quested via calloc() ) to the logical compliment of the least-significant byte in
+value . This helps detect use-before-initialized errors. Moreover, glibc also sets all
+freed bytes to the least-significant byte in value . This helps detect use-after-free
+errors.
+* M_TOP_PAD The amount of padding (in bytes) used when adjusting the size of the data segment.
+Whenever glibc uses brk() to increase the size of the data segment, it can ask for
+more memory than needed in the hopes of alleviating the need for an additional
+brk() call in the near future. Likewise, whenever glibc shrinks the size of the data
+segment, it can keep extra memory, giving back a little less than it would otherwise.
+These extra bytes are the padding. A value of 0 disables all use of padding.
+* M_TRIM_THRESHOLD The minimum amount of free memory (in bytes) at the top of the data segment
+before glibc invokes sbrk() to return memory to the kernel.
+
+**size_t malloc_usable_size (void &ast;ptr);**
+
+A successful call to malloc_usable_size() returns the actual allocation size of the
+chunk of memory pointed to by ptr . Because glibc may round up allocations to fit within
+an existing chunk or anonymous mapping, the usable space in an allocation can be larger
+than requested.
+
+**int malloc_trim (size_t padding);**
+
+force glibc to return all immediately
+freeable memory to the kernel.
+
+To enable memory debugging for program it can be executed like **MALLOC_CHECK_=1 ./app**
+
+If MALLOC_CHECK_ is set to 0 , the memory subsystem silently ignores any errors. If it is
+set to 1 , an informative message is printed to stderr . If it is set to 2 , the program is
+immediately terminated via abort() . Because MALLOC_CHECK_ changes the behavior of
+the running program, setuid programs ignore this variable.
+
+### Obtaining statistics
+
+**struct mallinfo mallinfo (void);**
+
+A call to mallinfo() returns statistics in a mallinfo structure. The structure is returned
+by value, not via a pointer.
+
+```C
+struct mallinfo {
+	int arena; *size of data segment used by malloc*
+	int ordblks; *number of free chunks*
+	int smblks; *number of fast bins*
+	int hblks; *number of anonymous mappings*
+	int hblkhd; *size of anonymous mappings*
+	int usmblks; *maximum total allocated size*
+	int fsmblks; *size of available fast bins*
+	int uordblks; *size of total allocated space*
+	int fordblks; *size of available chunks*
+	int keepcost; *size of trimmable space*
+};
+```
+
+### Dynamic memory allocation from stack
+
+**void &ast; alloca (size_t size);**
+
+On success, a call to alloca() returns a pointer to size bytes of memory.
+
+**char &ast; strdupa (const char &ast;s);**
+**char &ast; strndupa (const char &ast;s, size_t n);**
+
+A call to strdupa() returns a duplicate of s . A call to strndupa() duplicates up to n
+characters of s . If s is longer than n , the duplication stops at n , and the function appends
+a null byte.
+
+### Setting bytes
+
+ #include <string.h>
+
+**void &ast; memset (void &ast;s, int c, size_t n);**
+
+**int memcmp (const void &ast;s1, const void &ast;s2, size_t n);**
+
+Similar to strcmp() , memcmp() compares two chunks of memory for equivalence:
+It is not sage to use memcmp for structures because of possible paddings filled with garbage
+
+**void &ast; memmove (void &ast;dst, const void &ast;src, size_t n);**
+
+memmove() copies the first n bytes of src to dst , returning dst
+
+**void &ast; memcpy (void &ast;dst, const void &ast;src, size_t n);**
+
+This function behaves identically to memmove() , except dst and src may not overlap. If
+they do, the results are undefined.
+
+**void &ast; memchr (const void &ast;s, int c, size_t n);**
+
+The functions memchr() and memrchr() locate a given byte in a block of memory
+
+**void &ast; memmem (const void &ast;haystack,size_t haystacklen,const void &ast;needle,size_t needlelen);**
+
+memmem() searches a block of memory for an arbitrary array of bytes
+
+### Locking part of an address space
+
+POSIX 1003.1b-1993 defines two interfaces for “locking” one or more pages into phys‐
+ical memory, ensuring that they are never paged out to disk. The first locks a given
+interval of addresses
+
+ #include <sys/mman.h>
+
+**int mlock (const void &ast;addr, size_t len);**
+
+A call to mlock() locks the virtual memory starting at addr and extending for len bytes
+into physical memory. On success, the call returns 0 ; on failure, the call returns −1 and
+sets errno as appropriate.
+
+**int mlockall (int flags);**
+
+A call to mlockall() locks all of the pages in the current process’s address space into
+physical memory.
+
+#### Flags
+
+* MCL_CURRENT If set, this value instructs mlockall() to lock all currently mapped pages—the stack,
+data segment, mapped files, and so on—into the process’s address space.
+* MCL_FUTURE If set, this value instructs mlockall() to ensure that all pages mapped into the
+address space in the future are also locked into memory.
+
+To unlock pages from physical memory, again allowing the kernel to swap the pages out
+to disk as needed, POSIX standardizes two more interfaces
+
+**int munlock (const void &ast;addr, size_t len);**
+**int munlockall (void);**
+
+
